@@ -2,35 +2,31 @@ from cryptography.fernet import Fernet
 from web3 import Web3
 from getpass import getpass
 
-RPC = 'https://rpc.ankr.com/eth'
+# How to change script code for using decrypted keys
 
-'''
-How to change script code for using decrypted keys
+# Import libs (and dont forget to download cryptography lib by command: pip install cryptography):
+# from cryptography.fernet import Fernet
+# from getpass import getpass
 
-Import libs (and dont forget to download cryptography lib by command: pip install cryptography):
-from cryptography.fernet import Fernet
-from getpass import getpass
+# Put this code upper some code like this -> account = w3.eth.account.from_key(privatekey):
+# Dkey = getpass('Input key: ')
+# FFF = Fernet(Dkey)
 
-Put this code upper some code like this -> account = w3.eth.account.from_key(privatekey):
-Dkey = getpass('Input key: ')
-FFF = Fernet(Dkey)
+# And change string which create account from key
+# account = w3.eth.account.from_key(f.decrypt(privatekey.encode()).decode())
 
-And change string which create account from key
-account = w3.eth.account.from_key(f.decrypt(privatekey.encode()).decode())
-'''
 
-'''
-*
-.encode() method converts string -> bytes
-.decode() method converts bytes -> string
 
-Fernet supports only bytes
-so if U want to use any Fernet methods, arguments should be bytes type
-and Fernet methods return information in bytes type
-'''
+# .encode() method converts string -> bytes
+# .decode() method converts bytes -> string
+
+# Fernet supports only bytes
+# so if U want to use any Fernet methods, arguments should be bytes type
+# and Fernet methods return information in bytes type
+
 
 if __name__ == '__main__':
-    mode = input('Input mode (1 - generate, 2 - check): ')
+    mode = input('Input mode (1 - generate, 2 - get addresses, 3 - get keys): ')
     if mode == '1':
         key = Fernet.generate_key()
         f = Fernet(key)
@@ -55,7 +51,7 @@ if __name__ == '__main__':
         
         print(f'\n{len(data)} wallets successfully encrypted\nEncrypted privatekeys in encrypted_keys.txt\nDecrypt key in key.txt')
     elif mode == '2':
-        w3 = Web3(Web3.HTTPProvider(RPC))
+        w3 = Web3()
         key = getpass('Input key: ')
         f = Fernet(key.encode())
         
@@ -67,4 +63,16 @@ if __name__ == '__main__':
         for privatekey in data:
             account = w3.eth.account.from_key(f.decrypt(privatekey.encode()).decode())
             print(account.address)
+    elif mode == '3':
+        key = getpass('Input key: ')
+        f = Fernet(key.encode())
+        
+        with open('encrypted_keys.txt', 'r') as file:
+            data = file.read().splitlines()
+            file.close()
+        
+        print('\nPrivate keys:')
+        for privatekey in data:
+            print(f.decrypt(privatekey.encode()).decode())
+    
     input()
